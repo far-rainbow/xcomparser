@@ -1,0 +1,1 @@
+FILE='articles.txt'

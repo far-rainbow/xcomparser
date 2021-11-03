@@ -1,5 +1,11 @@
 import time
+import requests
 import threading
+
+
+class ParseException(Exception):
+    pass
+
 
 class Parser:
     
@@ -33,6 +39,20 @@ class Parser:
                 
     def get_link(self,block):
         for link in block:
-            print(f'Thread #{threading.get_native_id()} : get {link}')
+            try:
+                url = 'https://sort.diginetica.net/search?st='+link
+                #&apiKey=D1K76714Q4&strategy=vectors_extended,zero_queries_predictor&fullData=true&withCorrection=true&withFacets=true&treeFacets=true&regionId=global&useCategoryPrediction=true&size=20&offset=0&showUnavailable=true&unavailableMultiplier=0.2&preview=false&withSku=false&sort=DEFAULT'
+                print(f'Thread #{threading.get_native_id()} : get {url}')
+                response = requests.get(link, timeout=10)
+
+                if response.status_code != 200:
+                    raise ParseException
+
+            except Exception as e:
+                print(e)
+                raise e
+
+        return response.text
+            
         print(f'wait {self.PAUSE} sec...')
         time.sleep(self.PAUSE)

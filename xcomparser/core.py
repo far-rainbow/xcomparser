@@ -1,8 +1,10 @@
+import time
 import threading
 
 class Parser:
     
-    def __init__(self,FILE,THREADS):
+    def __init__(self,FILE,PAUSE,THREADS):
+        self.PAUSE = PAUSE
         links = self.load_list_from_file(FILE)
         self.start(links,THREADS)
 
@@ -25,11 +27,12 @@ class Parser:
     def start(self,links,THREADS):
         links_chunks = self.chunklist(links,THREADS) 
         for links_block in links_chunks:
-            for block in links_block:
-                thr = threading.Thread(target=self.get_link, args=([block]))
-                thr.start()
-                thr.join()
+            thr = threading.Thread(target=self.get_link, args=([links_block]))
+            thr.start()
+            thr.join()
                 
     def get_link(self,block):
         for link in block:
-            print(f'{threading.get_native_id()} : {link}')
+            print(f'Thread #{threading.get_native_id()} : get {link}')
+        print(f'wait {self.PAUSE} sec...')
+        time.sleep(self.PAUSE)

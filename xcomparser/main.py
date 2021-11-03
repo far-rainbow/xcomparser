@@ -1,10 +1,8 @@
-import parser
+import core
 import config
 
-
 def main():
-    parser.start(config.FILE)
-
+    core.Parser(config.FILE,config.THREADS)
 
 if __name__ == '__main__':
     main()

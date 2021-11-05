@@ -1,5 +1,4 @@
 beautifulsoup4==4.8.1
 Nuitka==0.6.12.4
 pandas==1.0.5
-pprint==0.1
 requests==2.25.1

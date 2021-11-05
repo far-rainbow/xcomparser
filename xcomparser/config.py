@@ -1,3 +1,3 @@
-FILE='articles.txt'
-THREADS=4
-PAUSE=1
+FILE = 'articles.txt'
+THREADS = 16
+PAUSE = 1

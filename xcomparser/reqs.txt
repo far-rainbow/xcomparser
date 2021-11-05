@@ -1,5 +1,5 @@
-beautifulsoup4==4.8.1
+beautifulsoup4
 lxml
-Nuitka==0.6.12.4
-pandas==1.0.5
-requests==2.25.1
+Nuitka
+pandas
+requests

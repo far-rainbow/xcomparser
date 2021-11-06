@@ -53,7 +53,7 @@ class ExcelService:
         
         df = pd.DataFrame(datalist, columns=base_keys+unique_keys)
 
-        df.to_csv(f'excel_out_{datetime.now().strftime("%d_%b_%Y_%H_%M")}.csv',sep=';',encoding='utf-8',index=False)
+        df.to_csv(f'excel_out_{datetime.now().strftime("%d_%b_%Y_%H_%M")}.csv',sep=',',encoding='utf-8',index=False)
 
         # file = xlwt.Workbook()
         # sheet = file.add_sheet("parsed")

@@ -65,62 +65,74 @@ class Parser:
     def get_link(art):
         apikey = 'D1K76714Q4'
         try:
-            url = 'https://sort.diginetica.net/search?st=' + art + '&fullData=true&apiKey=' + apikey
+            #url = 'https://sort.diginetica.net/search?st=' + art + '&fullData=true&apiKey=' + apikey
+            url = 'https://autocomplete.diginetica.net/autocomplete?st=' + art + '&apiKey=' + apikey + '&fullData=true&&strategy=advanced,zero_queries'
             print(f'Thread #{threading.get_native_id()} : get {url}')
             response = requests.get(url, timeout=10)
             if response.status_code != 200:
                 raise ParseException
         except Exception as e:
             print(e)
-
-        link = 'https://www.xcom-shop.ru' + json.loads(response.text)['products'][0]['link_url']
-        img_link = json.loads(response.text)['products'][0]['image_url']
-        brand = json.loads(response.text)['products'][0]['brand']
-
-        try:
-            if json.loads(response.text)['products'][0]['attributes']['код товара'][0]==art:
-                art_found = True
-            else:
-                art_found = False
-        except Exception as e:
-            art_found = False
-            print(f'ART: ошибка получения артикула (нет в поиске) {link}')
             
-        try:
-            response = requests.get(link, timeout=10)
-            if response.status_code != 200:
-                raise ParseException
-        except Exception as e:
-            print(e)
-
-        soup = BeautifulSoup(response.text, 'lxml')
-        title = soup.find(
-            'h1', {'id': lambda x: x == 'card-main-title'}).getText().lstrip().rstrip()
-            
-        try:
-            descr_long = soup.find(
-                'p', {'class': lambda x: x == 'product-block-description__text'}).getText().strip()
-        except:
-            descr_long = '---'
-            print(f'Нет полного описания для: {link}')
-
-        descr_short = soup.find('div',
-                                {'class': lambda x: x == 'product-block-description__last-block-wrap'}).contents[1].getText()
-        descr = soup.find_all(
-            'div', {'class': lambda x: x == 'product-block-description__block'})
-        hars = descr[1].find_all(
-            'li', {'class': lambda x: x == 'product-block-description__item'})
-        descrdict = {}
-        for _ in hars:
-            second = False
+        jsonresp = json.loads(response.text)
+        
+        if len(jsonresp['products'])==1:
+            link = 'https://www.xcom-shop.ru' + jsonresp['products'][0]['link_url']
+            img_link = jsonresp['products'][0]['image_url']
+            brand = jsonresp['products'][0]['brand']
             try:
-                first = _.contents[1].getText().rstrip()
-                second = _.contents[3].getText().lstrip().rstrip()
+                if jsonresp['products'][0]['attributes']['код товара'][0]==art:
+                    art_found = True
+                else:
+                    art_found = False
+            except Exception as e:
+                art_found = False
+                print(f'ART: ошибка получения артикула (нет в поиске) {link}')
+                
+            try:
+                response = requests.get(link, timeout=10)
+                if response.status_code != 200:
+                    raise ParseException
+            except Exception as e:
+                print(e)
+
+            soup = BeautifulSoup(response.text, 'lxml')
+            title = soup.find(
+                'h1', {'id': lambda x: x == 'card-main-title'}).getText().lstrip().rstrip()
+                
+            try:
+                descr_long = soup.find(
+                    'p', {'class': lambda x: x == 'product-block-description__text'}).getText().strip()
             except:
-                pass
-            finally:
-                if second:
-                    descrdict[first] = second
+                descr_long = '---'
+                print(f'Нет полного описания для: {link}')
+
+            descr_short = soup.find('div',
+                                    {'class': lambda x: x == 'product-block-description__last-block-wrap'}).contents[1].getText()
+            descr = soup.find_all(
+                'div', {'class': lambda x: x == 'product-block-description__block'})
+            hars = descr[1].find_all(
+                'li', {'class': lambda x: x == 'product-block-description__item'})
+            descrdict = {}
+            for _ in hars:
+                second = False
+                try:
+                    first = _.contents[1].getText().rstrip()
+                    second = _.contents[3].getText().lstrip().rstrip()
+                except:
+                    pass
+                finally:
+                    if second:
+                        descrdict[first] = second
+        else:
+            link = url
+            img_link = '='
+            brand = '='
+            title = '='
+            descr_long = '='
+            descr_short = '='
+            art_found = False
+            descrdict = {}
                     
         data = {'title': title, 'dlong': descr_long, 'dshort': descr_short,
                 'hars': descrdict, 'img': img_link, 'brand': brand, 'art': art, 'art_found': art_found}

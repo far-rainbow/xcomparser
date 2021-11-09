@@ -62,10 +62,11 @@ class Parser:
         es.ExcelService.create_table(results)
 
     @staticmethod
-    def get_link(art):
+    def get_link(art_price):
         apikey = 'D1K76714Q4'
+        art = art_price.split('\t')[0]
+        price = art_price.split('\t')[1]
         try:
-            #url = 'https://sort.diginetica.net/search?st=' + art + '&fullData=true&apiKey=' + apikey
             url = 'https://autocomplete.diginetica.net/autocomplete?st=' + art + '&apiKey=' + apikey + '&fullData=true&&strategy=advanced,zero_queries'
             print(f'Thread #{threading.get_native_id()} : get {url}')
             response = requests.get(url, timeout=10)
@@ -80,6 +81,7 @@ class Parser:
             link = 'https://www.xcom-shop.ru' + jsonresp['products'][0]['link_url']
             img_link = jsonresp['products'][0]['image_url']
             brand = jsonresp['products'][0]['brand']
+            name = jsonresp['products'][0]['name']
             try:
                 if jsonresp['products'][0]['attributes']['код товара'][0]==art:
                     art_found = True
@@ -126,6 +128,7 @@ class Parser:
                         descrdict[first] = second
         else:
             link = url
+            name = '='
             img_link = '='
             brand = '='
             title = '='
@@ -135,5 +138,6 @@ class Parser:
             descrdict = {}
                     
         data = {'title': title, 'dlong': descr_long, 'dshort': descr_short,
-                'hars': descrdict, 'img': img_link, 'brand': brand, 'art': art, 'art_found': art_found}
+                'hars': descrdict, 'img': img_link, 'brand': brand, 'art': art,
+                'art_found': art_found, 'price': price, 'name': name}
         return data

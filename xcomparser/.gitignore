@@ -9,3 +9,10 @@
 /excel_out_05_Nov_2021_00_16.csv
 /excel_out_05_Nov_2021_00_18.csv
 /excel_out_05_Nov_2021_00_26.csv
+/main.build/
+/main.dist/
+/main.onefile-build/
+*.csv
+/main.exe
+/xcomparser.exe
+/xcomparser.rar

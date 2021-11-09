@@ -8,7 +8,7 @@ class ExcelService:
 
     @staticmethod
     def replace_none_with_empty_str(some_dict):
-        return { k: ('=' if v is None else v) for k, v in some_dict.items() }
+        return { k: ('' if v is None else v) for k, v in some_dict.items() }
 
     @staticmethod
     def create_table(hars):
@@ -40,10 +40,13 @@ class ExcelService:
             if _['art_found']:
                 dataline = {**datacaption,**datadict}
                 dataline['Артикул'] = _['art']
+                dataline['Заголовок'] = _['name']
                 datadict = _['hars']
                 dataline['Краткое описание'] = _['dshort']
                 dataline['Длинное описание'] = _['dlong']
                 dataline['Бренд'] = _['brand']
+                dataline['Картинки'] = _['img']
+                dataline['Цена'] = _['price']
                 datalist.append(ExcelService.replace_none_with_empty_str(dataline))
             else:
                 dataline = {**datacaption,**datadict}

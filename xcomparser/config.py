@@ -1,3 +1,3 @@
 FILE = 'articles.txt'
-THREADS = 16
+THREADS = 24
 PAUSE = 1

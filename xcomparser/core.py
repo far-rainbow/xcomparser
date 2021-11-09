@@ -1,11 +1,13 @@
-import time
-import json
-import threading
 from datetime import datetime
+import json
 from queue import Queue
 from threading import Thread
-import requests
+import threading
+import time
+
 from bs4 import BeautifulSoup
+import requests
+
 import exceler as es
 
 

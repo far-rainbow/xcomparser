@@ -1,5 +1,6 @@
-import core
 import config
+import core
+
 
 def main():
     core.Parser(file=config.FILE,

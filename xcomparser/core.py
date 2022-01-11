@@ -1,3 +1,4 @@
+''' PARSER CORE '''
 from datetime import datetime
 import json
 from queue import Queue
@@ -16,7 +17,6 @@ class ParseException(Exception):
 
 
 class Parser:
-    
     def __init__(self, file, pause, threads):
         self.pause = pause
         links = self.load_list_from_file(file)
@@ -27,7 +27,7 @@ class Parser:
     def load_list_from_file(filename):
         ''' load links from file '''
         try:
-            with open(filename) as file_name:
+            with open(filename,encoding='utf-8') as file_name:
                 links = file_name.readlines()
         except FileNotFoundError:
             raise '!!! Файл с артикулами не найден !!!'
@@ -54,7 +54,7 @@ class Parser:
                 thr.join()
             while not self.que.empty():
                 results.append(self.que.get())
-            # INFO AND SLEEP    
+            # INFO AND SLEEP
             self.length -= len(links_block)
             print(f'{datetime.now()}: {self.length} to finish...')
             print(f'wait {self.pause} sec...')
@@ -69,16 +69,18 @@ class Parser:
         art = art_price.split('\t')[0]
         price = art_price.split('\t')[1]
         try:
-            url = 'https://autocomplete.diginetica.net/autocomplete?st=' + art + '&apiKey=' + apikey + '&fullData=true&&strategy=advanced,zero_queries'
+            url = 'https://autocomplete.diginetica.net/autocomplete?st=' + \
+            art + \
+            '&apiKey=' + \
+            apikey + \
+            '&fullData=true&&strategy=advanced,zero_queries'
             print(f'Thread #{threading.get_native_id()} : get {url}')
             response = requests.get(url, timeout=10)
             if response.status_code != 200:
                 raise ParseException
-        except Exception as e:
-            print(e)
-            
+        except Exception as exc:
+            print(exc)
         jsonresp = json.loads(response.text)
-        
         if len(jsonresp['products'])==1:
             link = 'https://www.xcom-shop.ru' + jsonresp['products'][0]['link_url']
             img_link = jsonresp['products'][0]['image_url']
@@ -89,28 +91,27 @@ class Parser:
                     art_found = True
                 else:
                     art_found = False
-            except Exception as e:
+            except Exception as exc:
                 art_found = False
                 print(f'ART: ошибка получения артикула (нет в поиске) {link}')
-                
+                print(exc)
             try:
                 response = requests.get(link, timeout=10)
                 if response.status_code != 200:
                     raise ParseException
-            except Exception as e:
-                print(e)
+            except Exception as exc:
+                print(exc)
 
             soup = BeautifulSoup(response.text, 'lxml')
-            title = soup.find(
-                'h1', {'id': lambda x: x == 'card-main-title'}).getText().lstrip().rstrip()
-                
+            title = soup.find('h1', {'id': lambda x: x == 'card-main-title'}).getText().lstrip().rstrip()
+            print(title)
             try:
                 descr_long = soup.find(
                     'p', {'class': lambda x: x == 'product-block-description__text'}).getText().strip()
-            except:
+            except Exception as exc:
                 descr_long = '---'
                 print(f'Нет полного описания для: {link}')
-
+                print(exc)
             descr_short = soup.find('div',
                                     {'class': lambda x: x == 'product-block-description__last-block-wrap'}).contents[1].getText()
             descr = soup.find_all(
@@ -123,7 +124,7 @@ class Parser:
                 try:
                     first = _.contents[1].getText().rstrip()
                     second = _.contents[3].getText().lstrip().rstrip()
-                except:
+                except Exception as exc:
                     pass
                 finally:
                     if second:
@@ -138,7 +139,6 @@ class Parser:
             descr_short = '='
             art_found = False
             descrdict = {}
-                    
         data = {'title': title, 'dlong': descr_long, 'dshort': descr_short,
                 'hars': descrdict, 'img': img_link, 'brand': brand, 'art': art,
                 'art_found': art_found, 'price': price, 'name': name}
